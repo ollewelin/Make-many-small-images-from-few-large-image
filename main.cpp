@@ -1,4 +1,4 @@
-//This code take some 0.JPG files in program root dir and tranform images to a folder with name \data\0.JPG
+//This code take some 0.jpg files in program root dir and tranform images to a folder with name \data\0.jpg
 
 //#include <stdio.h>
 //#include <unistd.h>
@@ -183,11 +183,26 @@ int main ()
     float scale=0;
     //-------------
     Mat color_img_ver,color_img_pos,image_pos, image_ver, cloned_img_pos , cloned_img_ver;
+int max_preDIV = 20;
+int prediv =0;
+    printf("Enter how much you want pre-resize orginal image 1..%d\n", max_preDIV);
+    scanf("%d", &prediv);
+    printf("prediv = %d\n", prediv);
+    if(prediv < 1 || prediv > max_preDIV)
+{
+	printf("Out of range error prediv < 1 || prediv > max_preDIV\n");
+exit(0);
+} 
+
 
 create_a_data_path();
 const int max_DIV =100;
 int div_img=0;
-    printf("Enter how many orginal images you have 0...JPG \n");
+int org_start = 0;
+    printf("Enter start index Orginal start att 0000 + index ...jpg \n");
+    scanf("%d", &org_start);
+ 
+    printf("Enter how many orginal images you have from %04d...jpg \n", org_start);
     scanf("%d", &nr_of_orginals);
     printf("How many orginal images you have enter = %d\n", nr_of_orginals);
     printf("Enter how much you want devide the orginal image 1..%d\n", max_DIV);
@@ -201,11 +216,12 @@ exit(0);
 } 
     srand (static_cast <unsigned> (time(0)));//Seed the randomizer
     
- printf("Try Open 0.JPG files and see what width and height this image have\n");
-color_img_pos = imread("0.JPG", 1 );
+ printf("Try Open 0001.jpg files and see what width and height this image have\n");
+color_img_pos = imread("0001.jpg", 1);
 int input_image_width = color_img_pos.cols;
 int input_image_height = color_img_pos.rows;
-
+input_image_width /= prediv;
+input_image_height /= prediv;
 printf("input_image_width = %d\n", input_image_width); 
 printf("input_image_height = %d\n", input_image_height); 
 if(input_image_height < 1 || input_image_width < 1)
@@ -213,6 +229,7 @@ if(input_image_height < 1 || input_image_width < 1)
 printf("ERROR Out of range input_image_height or input_image_width <1"); 
 exit(0);
 }
+
 int FRAME_WIDTH = 0;
 int FRAME_HEIGHT = 0;
 FRAME_WIDTH = input_image_width / div_img;
@@ -223,18 +240,20 @@ printf("FRAME_HEIGHT = %d\n", FRAME_HEIGHT);
 int nr_ROW = input_image_height / FRAME_HEIGHT;
 int nr_COL = input_image_width / FRAME_WIDTH;
 int nr_per_orginal = nr_COL *nr_ROW;
+
 printf("Nr of images per orginal image = %d\n", nr_per_orginal);
+
 int random_position = 0;
 
     for(int org_nr=0; org_nr<nr_of_orginals; org_nr++)
     {
-        sprintf(filename_src, "%d.JPG", org_nr);//Assigne a filename "pos" with index number added
+        sprintf(filename_src, "%04d.jpg", org_nr+org_start);//#04 pad to length of 4 Assigne a filename "pos" with index number added
         color_img_pos = imread( filename_src, 1 );
         if ( !color_img_pos.data )
         {
             printf("\n");
             printf("==================================================\n");
-            printf("No image_pos data Error! Probably not find %d.JPG \n", org_nr);
+            printf("No image_pos data Error! Probably not find %04d.jpg \n", org_nr+org_start);
             printf("==================================================\n");
             printf("\n");
             //return -1;
@@ -293,11 +312,11 @@ printf("trans_nr = %d\n", trans_nr);
 ///            }
             imshow("image_pos_part",image_pos_part);
          ///   waitKey(1000);
-            cv::imwrite("temporary_file.JPG",image_pos_part);
+            cv::imwrite("temporary_file.jpg",image_pos_part);
             //--- Save JPG files ----
 	    int dst_img_index = (org_nr*nr_per_orginal) + trans_nr;
-            sprintf(filename_dst, "./data/%d.JPG", (dst_img_index));
-            ret = rename("temporary_file.JPG", filename_dst);
+            sprintf(filename_dst, "./data/%d.jpg", (dst_img_index));
+            ret = rename("temporary_file.jpg", filename_dst);
             if(ret == 0)
             {
                 printf("File renamed successfully");
@@ -307,9 +326,9 @@ printf("trans_nr = %d\n", trans_nr);
                 printf("Error: unable to rename the file");
             }
             //---------------------
-            //cout<<"image_pos saved at ./x.JPG"<<endl;
+            //cout<<"image_pos saved at ./x.jpg"<<endl;
             printf("image_pos save a file: %d", dst_img_index);
-            printf(".JPG\n" );
+            printf(".jpg\n" );
             printf("trans_nr %d\n", trans_nr);
             waitKey(1);
 trans_nr++;
